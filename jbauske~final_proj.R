@@ -2,20 +2,20 @@
 # Final Project Code
 
 # load data from FDIC
-banklist <- read_csv("IST 719/week 6/hw6/banklist.csv")
-bfb_all_data <- read_csv("IST 719/week 6/hw6/bfb-all-data.csv")
-bank_data <- read_csv("IST 719/week 6/hw6/bank-data.csv")
+banklist <- read_csv("Data/banklist.csv")
+bfb_all_data <- read_csv("Data/bfb-all-data.csv")
+bank_data <- read_csv("Data/bank-data.csv")
 
 # convert date to date format
-banklist$`Closing Date `[1:10] # D-MMM-YY
+banklist$`Closing DateÂ `[1:10] # D-MMM-YY
 #?strptime() # %e-%b-%y
-my.date <- as.Date(strptime(banklist$`Closing Date `, "%e-%b-%y"))
+my.date <- as.Date(strptime(banklist$`Closing DateÂ `, "%e-%b-%y"))
 my.date[1:10]
 banklist$closing_date <- my.date
 
 # fix var name for merging
-banklist$bank_name <- banklist$`Bank Name `
-banklist <- subset(banklist, select = -c(`Bank Name `, `Closing Date `))
+banklist$bank_name <- banklist$`Bank NameÂ `
+banklist <- subset(banklist, select = -c(`Bank NameÂ `, `Closing DateÂ `))
 str(banklist)
 
 # split/process column for merging
@@ -31,7 +31,7 @@ bank_failure <- merge(banklist, bfb_all_data, by = "bank_name")
 bank_failure <- subset(bank_failure, 
                        select = -c(city, state, `Closing Date`, 
                                    `Acquirer & Transaction`))
-bank_failure <- merge(bank_failure, bank_data, by.x = "Cert ", by.y = "CERT")
+bank_failure <- merge(bank_failure, bank_data, by.x = "CertÂ ", by.y = "CERT")
 bank_failure <- subset(bank_failure, select = -c(CHCLASS1, CITYST, FAILDATE, FIN,
                                                  ID, NAME, QBFASSET, QBFDEP,
                                                  RESTYPE1, SAVR))
@@ -74,7 +74,7 @@ hist(bank_failure$`Approx. Deposit (Thousands)`, col = "cadetblue",
      ylab = "Frequency of Values")
 
 # plot 3 (old)
-barplot(table(bank_failure$`State `), col = "darkseagreen4", 
+barplot(table(bank_failure$`StateÂ `), col = "darkseagreen4", 
         main = "Bank Closures per State", xlab = "State", 
         ylab = "Number of Bank Closures", 
         sub = "For Banks that Failed from 2001-2023")
@@ -143,7 +143,7 @@ ggplot(bank_failure) + aes(x = `Approx. Deposit (Thousands)`) +
        y = "Frequency of Values")
 
 
-bank_failure_counts <- as.data.frame(table(bank_failure$`State `))
+bank_failure_counts <- as.data.frame(table(bank_failure$`StateÂ `))
 names(bank_failure_counts) <- c("State", "Number of Bank Closures")
 
 # Plot 3 Final
@@ -169,12 +169,12 @@ library(ggmap)
 #install.packages("osmdata")
 #library(osmdata)
 
-# don't do any of this it did not do I wanted it to do >>>
-api_key <- "AIzaSyDExGx4xm0qmSuMK4Dr7MCDQ_2HvgUdCKE"
+# don't do any of this it did not do what I wanted it to do >>>
+api_key <- #redacted
 register_google(key = api_key)
-cities <- bank_failure[, c("City ", "State ")]  
+cities <- bank_failure[, c("CityÂ ", "StateÂ ")]  
 # Geocode the city and state information using ggmap
-geocoded <- geocode(paste(cities$`City `, cities$`State `, sep = ", "), 
+geocoded <- geocode(paste(cities$`CityÂ `, cities$`StateÂ `, sep = ", "), 
                     source = "google", api_key = api_key)
 # Combine the geocoded coordinates with the original data frame
 bank_failure <- cbind(bank_failure, geocoded)
@@ -183,7 +183,7 @@ bank_failure <- bank_failure[complete.cases(bank_failure[, c("lon", "lat")]), ]
 
 
 # trying this a different way AND IT WORKED YESSSSSSSS
-bank_failure$region <- tolower(state.name[match(bank_failure$`State `, state.abb)])
+bank_failure$region <- tolower(state.name[match(bank_failure$`StateÂ `, state.abb)])
 df6 <- aggregate(bank_failure$bank_name, list(bank_failure$region), length)
 df6
 colnames(df6) <- c('region', 'Number of Banks Closed')
